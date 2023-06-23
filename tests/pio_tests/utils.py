@@ -66,7 +66,6 @@ def obtain_template(engine_dir, template):
     dest_dir = pjoin(engine_dir, repository_dirname(template))
     if not os.path.exists(dest_dir):
       srun('git clone --depth=1 {0} {1}'.format(template, dest_dir))
-    return dest_dir
   else:
     # check if exists
     dest_dir = pjoin(engine_dir, template)
@@ -74,7 +73,8 @@ def obtain_template(engine_dir, template):
       raise ValueError('Engine {0} does not exist in {1}'
           .format(template, engine_dir))
 
-    return dest_dir
+
+  return dest_dir
 
 def pio_app_list():
   """Returns: a list of dicts for every application with the following keys:
@@ -86,12 +86,10 @@ def pio_app_list():
           for line in [x.split() for x in output.split('\n')[1:-1]] ]
 
 def get_app_eventserver_url_json(test_context):
-  return 'http://{}:{}/events.json'.format(
-      test_context.es_ip, test_context.es_port)
+  return f'http://{test_context.es_ip}:{test_context.es_port}/events.json'
 
 def get_engine_url_json(engine_ip, engine_port):
-  return 'http://{}:{}/queries.json'.format(
-      engine_ip, engine_port)
+  return f'http://{engine_ip}:{engine_port}/queries.json'
 
 def send_event(event, test_context, access_key, channel=None):
   """ Sends an event to the eventserver
@@ -121,8 +119,7 @@ def send_events_batch(events, test_context, access_key, channel=None):
   Requires: Events length must not exceed length of 50
     http://predictionio.apache.org/datacollection/eventmodel/#3.-batch-events-to-the-eventserver
   """
-  url = 'http://{}:{}/batch/events.json'.format(
-      test_context.es_ip, test_context.es_port)
+  url = f'http://{test_context.es_ip}:{test_context.es_port}/batch/events.json'
   params = { 'accessKey': access_key }
   if channel: params['channel'] = channel
   return requests.post(
@@ -139,25 +136,18 @@ def import_events_batch(events, test_context, appid, channel=None):
     appid (int): application's id
     channel (str): custom channel for storing event
   """
-  # Writing events list to temporary file.
-  # `pio import` requires each line of input file to be a JSON string
-  # representing an event. Empty lines are not allowed.
-  contents = ''
-  for ev in events:
-      contents += '{}\n'.format(json.dumps(ev))
+  contents = ''.join(f'{json.dumps(ev)}\n' for ev in events)
   contents.rstrip('\n')
 
   file_path = pjoin(test_context.data_directory, 'events.json.tmp')
   try:
-      with open(file_path, 'w') as f:
-          f.write(contents)
-      srun('pio import --appid {} --input {} {} -- {}'.format(
-          appid,
-          file_path,
-          '--channel {}'.format(channel) if channel else '',
-          '--conf spark.sql.warehouse.dir=file:///tmp/spark-warehouse'))
+    with open(file_path, 'w') as f:
+        f.write(contents)
+    srun(
+        f"pio import --appid {appid} --input {file_path} {f'--channel {channel}' if channel else ''} -- --conf spark.sql.warehouse.dir=file:///tmp/spark-warehouse"
+    )
   finally:
-      os.remove(file_path)
+    os.remove(file_path)
 
 def get_events(test_context, access_key, params={}):
   """ Gets events for some application
@@ -223,10 +213,11 @@ class AppEngine:
   def new(self, id=None, description=None, access_key=None):
     """ Creates a new application with given parameters """
     srun('pio app new {} {} {} {}'.format(
-        '--id {}'.format(id) if id else '',
-        '--description \"{}\"'.format(description) if description else '',
-        '--access-key {}'.format(access_key) if access_key else '',
-        self.app_context.name))
+        f'--id {id}' if id else '',
+        f'--description \"{description}\"' if description else '',
+        f'--access-key {access_key}' if access_key else '',
+        self.app_context.name,
+    ))
 
     self.__init_info()
 
@@ -236,7 +227,7 @@ class AppEngine:
          `name`: str, `id`: int, `description`: str,
          `access_key`: str, `allowed_events`: str
     """
-    output = srun_out('pio app show {}'.format(self.app_context.name)).rstrip()
+    output = srun_out(f'pio app show {self.app_context.name}').rstrip()
     lines = [x.split() for x in output.split('\n')]
     return { 'name': lines[0][3],
              'id': int(lines[1][4]),
@@ -252,10 +243,11 @@ class AppEngine:
   def build(self, sbt_extra=None, clean=False, no_asm=True, engine_dir=None):
     srun('cd {0}; pio build {1} {2} {3} {4}'.format(
         self.engine_path,
-        '--sbt-extra {}'.format(sbt_extra) if sbt_extra else '',
+        f'--sbt-extra {sbt_extra}' if sbt_extra else '',
         '--clean' if clean else '',
         '--no-asm' if no_asm else '',
-        '--engine-dir {}'.format(engine_dir) if engine_dir else ''))
+        f'--engine-dir {engine_dir}' if engine_dir else '',
+    ))
 
   def train(self, batch=None, skip_sanity_check=False, stop_after_read=False,
           stop_after_prepare=False, engine_factory=None,
@@ -263,31 +255,36 @@ class AppEngine:
 
     srun('cd {0}; pio train {1} {2} {3} {4} {5} {6} {7} {8}'.format(
         self.engine_path,
-        '--batch {}'.format(batch) if batch else '',
+        f'--batch {batch}' if batch else '',
         '--skip-sanity-check' if skip_sanity_check else '',
         '--stop-after-read' if stop_after_read else '',
         '--stop-after-prepare' if stop_after_prepare else '',
-        '--engine_factory {}'.format(engine_factory) if engine_factory else '',
-        '--engine-params-key {}'.format(engine_params_key) if engine_params_key else '',
-        '--scratch-uri {}'.format(scratch_uri) if scratch_uri else '',
-        '--engine-dir {}'.format(engine_dir) if engine_dir else ''))
+        f'--engine_factory {engine_factory}' if engine_factory else '',
+        f'--engine-params-key {engine_params_key}' if engine_params_key else '',
+        f'--scratch-uri {scratch_uri}' if scratch_uri else '',
+        f'--engine-dir {engine_dir}' if engine_dir else '',
+    ))
 
   def deploy(self, wait_time=0, ip=None, port=None, engine_instance_id=None,
           feedback=False, accesskey=None, event_server_ip=None, event_server_port=None,
           batch=None, scratch_uri=None, engine_dir=None):
 
-    command = 'cd {0}; pio deploy {1} {2} {3} {4} {5} {6} {7} {8} {9} {10}'.format(
+    command = (
+        'cd {0}; pio deploy {1} {2} {3} {4} {5} {6} {7} {8} {9} {10}'.format(
             self.engine_path,
-            '--ip {}'.format(ip) if ip else '',
-            '--port {}'.format(port) if port else '',
-            '--engine-instance-id {}'.format(engine_instance_id) if engine_instance_id else '',
+            f'--ip {ip}' if ip else '',
+            f'--port {port}' if port else '',
+            f'--engine-instance-id {engine_instance_id}'
+            if engine_instance_id else '',
             '--feedback' if feedback else '',
-            '--accesskey {}'.format(accesskey) if accesskey else '',
-            '--event-server-ip {}'.format(event_server_ip) if event_server_ip else '',
-            '--event-server-port {}'.format(event_server_port) if event_server_port else '',
-            '--batch {}'.format(bach) if batch else '',
-            '--scratch-uri {}'.format(scratch_uri) if scratch_uri else '',
-            '--engine-dir {}'.format(engine_dir) if engine_dir else '')
+            f'--accesskey {accesskey}' if accesskey else '',
+            f'--event-server-ip {event_server_ip}' if event_server_ip else '',
+            f'--event-server-port {event_server_port}'
+            if event_server_port else '',
+            f'--batch {bach}' if batch else '',
+            f'--scratch-uri {scratch_uri}' if scratch_uri else '',
+            f'--engine-dir {engine_dir}' if engine_dir else '',
+        ))
 
     self.deployed_process = srun_bg(command)
     time.sleep(wait_time)
@@ -320,11 +317,11 @@ class AppEngine:
     return get_events(self.test_context, self.access_key, params)
 
   def delete_data(self, delete_all=True, channel=None):
-    srun('pio app data-delete {0} {1} {2} --force'
-        .format(
-            self.app_context.name,
-            '--all' if delete_all else '',
-            '--channel ' + channel if channel is not None else ''))
+    srun('pio app data-delete {0} {1} {2} --force'.format(
+        self.app_context.name,
+        '--all' if delete_all else '',
+        f'--channel {channel}' if channel is not None else '',
+    ))
 
   def query(self, data):
     return query_engine(data, self.ip, self.port)

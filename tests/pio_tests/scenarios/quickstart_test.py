@@ -62,9 +62,9 @@ class QuickStartTest(BaseTestCase):
         "quickstart_test/training_data.txt")
 
     # downloading training data
-    srun('curl https://raw.githubusercontent.com/apache/spark/master/' \
-            'data/mllib/sample_movielens_data.txt --create-dirs -o {}'
-            .format(self.training_data_path))
+    srun(
+        f'curl https://raw.githubusercontent.com/apache/spark/master/data/mllib/sample_movielens_data.txt --create-dirs -o {self.training_data_path}'
+    )
 
     app_context = AppContext(
         name="MyRecommender",
@@ -79,8 +79,8 @@ class QuickStartTest(BaseTestCase):
 
     self.log.info("Creating dummy directory")
     engine_path = self.app.engine_path
-    dummy_path = "{}/dummy".format(engine_path)
-    srun("mkdir -p {}".format(dummy_path))
+    dummy_path = f"{engine_path}/dummy"
+    srun(f"mkdir -p {dummy_path}")
 
     self.log.info("Testing pio commands in dummy directory with " +
       "--engine-dir argument")
@@ -100,7 +100,7 @@ class QuickStartTest(BaseTestCase):
     self.assertEqual(4, len(result['itemScores']))
 
     self.log.info("Deleting dummy directory")
-    srun("rm -rf {}".format(dummy_path))
+    srun(f"rm -rf {dummy_path}")
     self.app.engine_path = engine_path
 
   def runTest(self):

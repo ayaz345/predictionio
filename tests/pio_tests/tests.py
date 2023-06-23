@@ -65,11 +65,11 @@ if __name__ == "__main__":
   # setting up logging
   log_opt = args['logging']
   logger = logging.getLogger(globals.LOGGER_NAME)
-  if log_opt == 'INFO':
-    logger.level = logging.INFO
-  elif log_opt == 'DEBUG':
+  if log_opt == 'DEBUG':
     logger.level = logging.DEBUG
 
+  elif log_opt == 'INFO':
+    logger.level = logging.INFO
   test_context = TestContext(
       ENGINE_DIRECTORY, DATA_DIRECTORY,
       args['eventserver_ip'], int(args['eventserver_port']))
@@ -84,10 +84,11 @@ if __name__ == "__main__":
 
   # Actual tests execution
   es_wait_time = 25
-  logger.info("Starting eventserver and waiting {}s for it to initialize".format(
-      es_wait_time))
-  event_server_process = srun_bg('pio eventserver --ip {} --port {}'
-      .format(test_context.es_ip, test_context.es_port))
+  logger.info(
+      f"Starting eventserver and waiting {es_wait_time}s for it to initialize")
+  event_server_process = srun_bg(
+      f'pio eventserver --ip {test_context.es_ip} --port {test_context.es_port}'
+  )
   time.sleep(es_wait_time)
   result = XMLTestRunner(verbosity=2, output='test-reports').run(
                 unittest.TestSuite(tests))

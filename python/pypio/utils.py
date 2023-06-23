@@ -40,9 +40,7 @@ def list_to_dict(l):
     >>> list_to_dict(list) == {'key1': 1, 'key2': 2, 'key3': 3}
     True
     """
-    if l is None:
-        return None
-    return dict(zip(l[0::2], l[1::2]))
+    return None if l is None else dict(zip(l[::2], l[1::2]))
 
 
 if __name__ == "__main__":

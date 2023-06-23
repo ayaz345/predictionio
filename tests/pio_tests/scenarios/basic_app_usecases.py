@@ -29,30 +29,30 @@ ITEMS_COUNT = 12
 def get_buy_events(users, per_user=2):
   events = []
   for u in range(users):
-    items = set([random.randint(0, ITEMS_COUNT) for i in range(per_user)])
-    for item in items:
-      events.append({
+    items = {random.randint(0, ITEMS_COUNT) for _ in range(per_user)}
+    events.extend({
         "event": "buy",
         "entityType": "user",
         "entityId": u,
         "targetEntityType": "item",
-        "targetEntityId": item })
-
+        "targetEntityId": item,
+    } for item in items)
   return events
 
 def get_rate_events(users, per_user=2):
   events = []
   for u in range(users):
-    items = set([random.randint(0, ITEMS_COUNT) for i in range(per_user)])
-    for item in items:
-      events.append( {
+    items = {random.randint(0, ITEMS_COUNT) for _ in range(per_user)}
+    events.extend({
         "event": "rate",
         "entityType": "user",
         "entityId": u,
         "targetEntityType": "item",
         "targetEntityId": item,
-        "properties": { "rating" : float(random.randint(1,5)) } })
-
+        "properties": {
+            "rating": float(random.randint(1, 5))
+        },
+    } for item in items)
   return events
 
 

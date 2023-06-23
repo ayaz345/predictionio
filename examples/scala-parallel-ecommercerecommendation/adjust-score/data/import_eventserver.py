@@ -32,7 +32,7 @@ def import_events(client):
   print("Importing data...")
 
   # generate 10 users, with user ids u1,u2,....,u10
-  user_ids = ["u%s" % i for i in range(1, 11)]
+  user_ids = [f"u{i}" for i in range(1, 11)]
   for user_id in user_ids:
     print("Set user", user_id)
     client.create_event(
@@ -44,8 +44,8 @@ def import_events(client):
 
   # generate 50 items, with item ids i1,i2,....,i50
   # random assign 1 to 4 categories among c1-c6 to items
-  categories = ["c%s" % i for i in range(1, 7)]
-  item_ids = ["i%s" % i for i in range(1, 51)]
+  categories = [f"c{i}" for i in range(1, 7)]
+  item_ids = [f"i{i}" for i in range(1, 51)]
   for item_id in item_ids:
     print("Set item", item_id)
     client.create_event(
@@ -82,7 +82,7 @@ def import_events(client):
         )
         count += 1
 
-  print("%s events are imported." % count)
+  print(f"{count} events are imported.")
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(

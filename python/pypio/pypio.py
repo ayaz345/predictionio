@@ -76,20 +76,20 @@ def save_model(model, predict_columns):
 
     meta = sc._jvm.org.apache.predictionio.data.storage.EngineInstance.apply(
         "",
-        "INIT", # status
-        sc._jvm.org.joda.time.DateTime.now(), # startTime
-        sc._jvm.org.joda.time.DateTime.now(), # endTime
-        "org.apache.predictionio.e2.engine.PythonEngine", # engineId
-        "1", # engineVersion
-        "default", # engineVariant
-        "org.apache.predictionio.e2.engine.PythonEngine", # engineFactory
-        "", # batch
-        dict_to_scalamap(sc._jvm, pio_env), # env
-        sc._jvm.scala.Predef.Map().empty(), # sparkConf
-        "{\"\":{}}", # dataSourceParams
-        "{\"\":{}}", # preparatorParams
-        "[{\"default\":{}}]", # algorithmsParams
-        json.dumps({"":{"columns":[v for v in predict_columns]}}) # servingParams
+        "INIT",
+        sc._jvm.org.joda.time.DateTime.now(),
+        sc._jvm.org.joda.time.DateTime.now(),
+        "org.apache.predictionio.e2.engine.PythonEngine",
+        "1",
+        "default",
+        "org.apache.predictionio.e2.engine.PythonEngine",
+        "",
+        dict_to_scalamap(sc._jvm, pio_env),
+        sc._jvm.scala.Predef.Map().empty(),
+        "{\"\":{}}",
+        "{\"\":{}}",
+        "[{\"default\":{}}]",
+        json.dumps({"": {"columns": list(predict_columns)}}),
     )
     id = meta_storage.insert(meta)
 

@@ -27,32 +27,31 @@ RATE_ACTIONS_DELIMITER = "::"
 SEED = 3
 
 def import_events(client, file):
-  f = open(file, 'r')
-  random.seed(SEED)
-  count = 0
-  print("Importing data...")
-  for line in f:
-    data = line.rstrip('\r\n').split(RATE_ACTIONS_DELIMITER)
-    # For demonstration purpose, randomly mix in some dislike events
-    if (random.randint(0, 1) == 1):
-      client.create_event(
-        event="like",
-        entity_type="customer",
-        entity_id=data[0],
-        target_entity_type="product",
-        target_entity_id=data[1]
-      )
-    else:
-      client.create_event(
-        event="dislike",
-        entity_type="customer",
-        entity_id=data[0],
-        target_entity_type="product",
-        target_entity_id=data[1]
-      )
-    count += 1
-  f.close()
-  print("%s events are imported." % count)
+  with open(file, 'r') as f:
+    random.seed(SEED)
+    count = 0
+    print("Importing data...")
+    for line in f:
+      data = line.rstrip('\r\n').split(RATE_ACTIONS_DELIMITER)
+      # For demonstration purpose, randomly mix in some dislike events
+      if (random.randint(0, 1) == 1):
+        client.create_event(
+          event="like",
+          entity_type="customer",
+          entity_id=data[0],
+          target_entity_type="product",
+          target_entity_id=data[1]
+        )
+      else:
+        client.create_event(
+          event="dislike",
+          entity_type="customer",
+          entity_id=data[0],
+          target_entity_type="product",
+          target_entity_id=data[1]
+        )
+      count += 1
+  print(f"{count} events are imported.")
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(

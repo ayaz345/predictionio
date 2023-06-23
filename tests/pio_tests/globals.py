@@ -22,13 +22,7 @@ SUPPRESS_STDERR=False
 LOGGER_NAME='INT_TESTS'
 
 def std_out():
-  if SUPPRESS_STDOUT:
-    return subprocess.DEVNULL
-  else:
-    return None
+  return subprocess.DEVNULL if SUPPRESS_STDOUT else None
 
 def std_err():
-  if SUPPRESS_STDERR:
-    return subprocess.DEVNULL
-  else:
-    return None
+  return subprocess.DEVNULL if SUPPRESS_STDERR else None

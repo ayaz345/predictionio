@@ -23,28 +23,27 @@ import predictionio
 import argparse
 
 def import_events(client, file):
-  f = open(file, 'r')
-  count = 0
-  print("Importing data...")
-  for line in f:
-    data = line.rstrip('\r\n').split(",")
-    label = data[0]
-    attr = data[1].split(" ")
-    client.create_event(
-      event="$set",
-      entity_type="item",
-      entity_id=str(count),
-      properties= {
-        "featureA" : int(attr[0]),
-        "featureB" : int(attr[1]),
-        "featureC" : int(attr[2]),
-        "featureD" : 0,
-        "label" : int(label)
-      }
-    )
-    count += 1
-  f.close()
-  print("%s events are imported." % count)
+  with open(file, 'r') as f:
+    count = 0
+    print("Importing data...")
+    for line in f:
+      data = line.rstrip('\r\n').split(",")
+      label = data[0]
+      attr = data[1].split(" ")
+      client.create_event(
+        event="$set",
+        entity_type="item",
+        entity_id=str(count),
+        properties= {
+          "featureA" : int(attr[0]),
+          "featureB" : int(attr[1]),
+          "featureC" : int(attr[2]),
+          "featureD" : 0,
+          "label" : int(label)
+        }
+      )
+      count += 1
+  print(f"{count} events are imported.")
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(

@@ -33,14 +33,14 @@ class EventserverTest(BaseTestCase):
   """
   # Helper methods
   def eventserver_url(self, path=None):
-    url = 'http://{}:{}'.format(
-            self.test_context.es_ip, self.test_context.es_port)
-    if path: url += '/{}'.format(path)
+    url = f'http://{self.test_context.es_ip}:{self.test_context.es_port}'
+    if path:
+      url += f'/{path}'
     return url
 
   def load_events(self, json_file):
     file_path = pjoin(self.test_context.data_directory,
-        'eventserver_test/{}'.format(json_file))
+                      f'eventserver_test/{json_file}')
     return json.loads(open(file_path).read())
 
 
